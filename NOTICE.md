@@ -17,3 +17,10 @@ upstream Git history (`63a4cb6^:LICENSE`) so that the upstream README's license
 link works and the original copyright notice remains distributed with this
 fork.
 
+The Windows installer uses the Simplified Chinese Inno Setup translation
+maintained by Kira:
+
+- Translation: https://github.com/kira-96/Inno-Setup-Chinese-Simplified-Translation
+- Copyright (c) 2019-2020 kirakira
+- License: MIT; the complete license text is stored in
+  `packaging/ChineseSimplified.LICENSE`.

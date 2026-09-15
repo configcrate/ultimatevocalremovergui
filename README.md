@@ -41,9 +41,17 @@ Ultimate Vocal Remover GUI 是一款免费的 AI 音频分离工具，可以从�
 
 如果只是想快速去除歌曲人声，建议先使用 MDX-Net 的常用人声模型。不同歌曲适合的模型可能不同，可以使用同一首歌测试几个模型并比较结果。
 
-## 当前下载方式
+## 下载与安装
 
-当前仓库提供的是首个中文源码测试版，已经在 Windows 与 Python 3.10 环境成功启动。正式的一键安装包发布前，请以本仓库的 Releases 页面说明为准。
+Windows 10/11 64 位用户可以直接下载完整安装包：
+
+**[下载 Ultimate Vocal Remover 简体中文版](https://github.com/configcrate/ultimatevocalremovergui/releases/latest/download/UVR_v5.6.0_zh-CN_setup.exe)**
+
+下载后双击安装即可，不需要另装 Python、FFmpeg 或 AI 运算库。安装包约 1.5 GB，安装后约占 5.2 GB，包含 NVIDIA/CUDA 运行库和两个入门模型。
+
+安装程序目前没有商业代码签名证书，因此 Windows 可能显示“未知发布者”或 SmartScreen 提示。请只从本仓库的 Releases 页面下载，并在发布页核对 SHA-256 校验值。
+
+需要二次开发时，也可以从源码运行：
 
 从源码运行：
 
@@ -52,7 +60,7 @@ python -m pip install -r requirements.txt
 python UVR.py
 ```
 
-依赖体积较大，因为程序需要安装 PyTorch、ONNX Runtime 和音频处理组件。
+源码依赖体积同样较大，因为程序需要 PyTorch、ONNX Runtime 和音频处理组件。
 
 ## 临时切换回英文界面
 
@@ -72,7 +80,7 @@ python UVR.py --language=en
 
 ### 处理 MP3 时提示 FFmpeg 错误
 
-程序处理非 WAV 文件时需要 FFmpeg。请安装 FFmpeg，或者把 `ffmpeg.exe` 放入程序目录。
+完整 Windows 安装包已经包含 FFmpeg。从源码运行时，请安装 FFmpeg，或者把 `ffmpeg.exe` 放入程序目录。
 
 ### 显存或内存不足
 
@@ -91,4 +99,3 @@ Windows 中文版默认使用系统自带的“微软雅黑 UI”。其他系统
 本仓库保留上游完整 Git 历史、作者信息和项目署名。UVR 上游声明代码采用 MIT License；仓库还包含带有各自许可证声明的第三方组件，使用和分发时请继续遵守对应条款。
 
 本项目是非官方中文本地化版本，与 UVR 原作者没有官方隶属关系。详细来源说明请查看 [NOTICE.md](NOTICE.md)。
-
