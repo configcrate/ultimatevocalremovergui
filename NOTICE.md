@@ -4,7 +4,6 @@ Ultimate Vocal Remover GUI and its audio-separation implementation were
 created by the upstream UVR developers, principally Anjok07 and Aufr33.
 
 - Upstream project: https://github.com/Anjok07/ultimatevocalremovergui
-- Upstream support page: https://www.buymeacoffee.com/uvr5
 
 This repository is an unofficial Simplified Chinese localization maintained
 by ConfigCrate. ConfigCrate did not create the underlying UVR application,

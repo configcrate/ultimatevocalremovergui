@@ -4,7 +4,7 @@
 >
 > 软件、音频分离算法和核心模型均来自 UVR 原作者团队。我们只负责中文界面、中文教程与兼容性维护。
 
-[查看 Anjok07 制作的英文原版](https://github.com/Anjok07/ultimatevocalremovergui) · [支持 UVR 原作者](https://www.buymeacoffee.com/uvr5)
+[查看 Anjok07 制作的英文原版](https://github.com/Anjok07/ultimatevocalremovergui)
 
 ![Ultimate Vocal Remover 简体中文主界面](docs/screenshots/main-zh-cn.png)
 
