@@ -36,6 +36,7 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from datetime import datetime
 from gui_data.constants import *
+from gui_data.localization import CHINESE_FONT, apply_localization
 from gui_data.app_size_values import *
 from gui_data.error_handling import error_text, error_dialouge
 from gui_data.old_data_check import file_check, remove_unneeded_yamls, remove_temps
@@ -57,6 +58,15 @@ import sys
 import yaml
 from ml_collections import ConfigDict
 from collections import Counter
+
+# ConfigCrate Simplified Chinese edition.  Only presentation strings are
+# replaced; model names and saved-setting values remain upstream-compatible.
+IS_SIMPLIFIED_CHINESE = apply_localization(globals())
+
+
+def ui_text(english: str, simplified_chinese: str) -> str:
+    """Return a one-off display string in the active interface language."""
+    return simplified_chinese if IS_SIMPLIFIED_CHINESE else english
 
 # if not is_macos:
 #     import torch_directml
@@ -1305,7 +1315,7 @@ class MainWindow(TkinterDnD.Tk if is_dnd_compatible else tk.Tk):
 
         # --Window Settings--
         self.withdraw()
-        self.title('Ultimate Vocal Remover')
+        self.title('Ultimate Vocal Remover - 简体中文' if IS_SIMPLIFIED_CHINESE else 'Ultimate Vocal Remover')
         # Set Geometry and Center Window
         self.geometry('{width}x{height}+{xpad}+{ypad}'.format(
             width=self.main_window_width,
@@ -1549,7 +1559,11 @@ class MainWindow(TkinterDnD.Tk if is_dnd_compatible else tk.Tk):
     def set_app_font(self):
         chosen_font_name, chosen_font_file = font_checker(OWN_FONT_PATH)
 
-        if chosen_font_name:
+        if IS_SIMPLIFIED_CHINESE and not chosen_font_name:
+            gui_data.sv_ttk.set_theme("dark", CHINESE_FONT, 10)
+            self.font_set = Font(family=CHINESE_FONT, size=FONT_SIZE_F2)
+            self.font_entry = Font(family=CHINESE_FONT, size=FONT_SIZE_F2)
+        elif chosen_font_name:
             gui_data.sv_ttk.set_theme("dark", chosen_font_name, 10)
             if chosen_font_file:
                 pyglet_font.add_file(chosen_font_file)
@@ -2143,7 +2157,8 @@ class MainWindow(TkinterDnD.Tk if is_dnd_compatible else tk.Tk):
         style.configure('TRadiobutton', foreground='#F6F6F7')
         gui_data.sv_ttk.set_theme("dark", MAIN_FONT_NAME, 10, fg_color_set=fg_color_set)
 
-    def show_file_dialog(self, text='Select Audio files', dialoge_type=None):
+    def show_file_dialog(self, text=None, dialoge_type=None):
+        text = text or ui_text('Select Audio files', '选择音频文件')
         parent_win = root
         is_linux = not is_windows and not is_macos
         
@@ -2798,7 +2813,7 @@ class MainWindow(TkinterDnD.Tk if is_dnd_compatible else tk.Tk):
                 
             if load_screen:
                 # Step 1: Add "Loading..." label
-                loading_label = ttk.Label(tab, text="Updating model lists...", font=Font(family=MAIN_FONT_NAME, size=14))
+                loading_label = ttk.Label(tab, text=ui_text("Updating model lists...", "正在更新模型列表……"), font=Font(family=MAIN_FONT_NAME, size=14))
                 loading_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)  # Assuming you want to center it
                 
                 # Step 2: Update the UI to show the label
@@ -5162,7 +5177,7 @@ class MainWindow(TkinterDnD.Tk if is_dnd_compatible else tk.Tk):
                         widget.configure(state=tk.NORMAL)
                     
                 if refresh_list_Button:
-                    self.download_progress_info_var.set('Download List Refreshed!')
+                    self.download_progress_info_var.set(ui_text('Download List Refreshed!', '下载列表已刷新！'))
 
                 if OPERATING_SYSTEM=="Darwin":
                     self.lastest_version = self.online_data["current_version_mac"]
@@ -5172,7 +5187,7 @@ class MainWindow(TkinterDnD.Tk if is_dnd_compatible else tk.Tk):
                     self.lastest_version = self.online_data["current_version"]
                     
                 if self.lastest_version == current_patch and not is_start_up:
-                    self.app_update_status_Text_var.set('UVR Version Current')
+                    self.app_update_status_Text_var.set(ui_text('UVR Version Current', 'UVR 已是最新版本'))
                 else:
                     is_new_update = True
                     is_beta_version = True if self.lastest_version == PREVIOUS_PATCH_WIN and BETA_VERSION in current_patch else False
@@ -5183,7 +5198,7 @@ class MainWindow(TkinterDnD.Tk if is_dnd_compatible else tk.Tk):
                             self.app_update_button_Text_var.set(ROLL_BACK_TEXT)
                         else:
                             self.app_update_status_Text_var.set(f"Update Found: {self.lastest_version}")
-                            self.app_update_button_Text_var.set('Click Here to Update')
+                            self.app_update_button_Text_var.set(ui_text('Click Here to Update', '点击更新'))
                         
                         if OPERATING_SYSTEM == "Windows":
                             self.download_update_link_var.set('{}{}{}'.format(UPDATE_REPO, self.lastest_version, application_extension))
@@ -5233,9 +5248,12 @@ class MainWindow(TkinterDnD.Tk if is_dnd_compatible else tk.Tk):
         """Changes relevant settings and "Download Center" buttons if no internet connection is available"""
         
         if not is_start_up and self.is_menu_settings_open:
-            self.app_update_status_Text_var.set(f'Version Status: {NO_CONNECTION}')
+            self.app_update_status_Text_var.set(ui_text(
+                f'Version Status: {NO_CONNECTION}',
+                f'版本状态：{NO_CONNECTION}',
+            ))
             self.download_progress_info_var.set(NO_CONNECTION) 
-            self.app_update_button_Text_var.set('Refresh')
+            self.app_update_button_Text_var.set(ui_text('Refresh', '刷新'))
             self.refresh_list_Button.configure(state=tk.NORMAL)
             self.stop_download_Button_DISABLE()
             self.enable_tabs()
@@ -6242,7 +6260,10 @@ class MainWindow(TkinterDnD.Tk if is_dnd_compatible else tk.Tk):
 
         self.progress_bar_main_var.set(progress)
         
-        self.conversion_Button_Text_var.set(f'Process Progress: {int(progress)}%')
+        self.conversion_Button_Text_var.set(ui_text(
+            f'Process Progress: {int(progress)}%',
+            f'处理进度：{int(progress)}%',
+        ))
 
     def confirm_stop_process(self):
         """Asks for confirmation before halting active process"""

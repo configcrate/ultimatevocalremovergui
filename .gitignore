@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# UVR creates these files and folders at runtime.
+data.pkl
+ensemble_temps/
+temp_sample_clips/
+tmp/
+

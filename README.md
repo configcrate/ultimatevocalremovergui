@@ -1,4 +1,9 @@
 # Ultimate Vocal Remover GUI v5.6
+
+> 🇨🇳 **ConfigCrate 简体中文本地化版：** [查看中文说明与使用教程](README_CN.md)
+>
+> 本 Fork 保留原作者与完整项目历史。中文化只改变界面显示和文档，不改变 UVR 的音频分离算法、模型或内部配置。
+
 <img src="https://raw.githubusercontent.com/Anjok07/ultimatevocalremovergui/master/gui_data/img/UVR_v5.6.png?raw=true" />
 
 [![Release](https://img.shields.io/github/release/anjok07/ultimatevocalremovergui.svg)](https://github.com/anjok07/ultimatevocalremovergui/releases/latest)
