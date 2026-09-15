@@ -36,7 +36,13 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from datetime import datetime
 from gui_data.constants import *
-from gui_data.localization import CHINESE_FONT, apply_localization
+from gui_data.localization import (
+    CHINESE_FONT,
+    apply_localization,
+    localized_display_value,
+    localized_stem_name,
+    upstream_display_value,
+)
 from gui_data.app_size_values import *
 from gui_data.error_handling import error_text, error_dialouge
 from gui_data.old_data_check import file_check, remove_unneeded_yamls, remove_temps
@@ -1550,6 +1556,41 @@ class MainWindow(TkinterDnD.Tk if is_dnd_compatible else tk.Tk):
     def check_is_menu_settings_open(self):self.menu_settings() if not self.is_menu_settings_open else None
     def spacer_label(self, frame): return tk.Label(frame, text='', font=(MAIN_FONT_NAME, f"{FONT_SIZE_1}"), foreground='#868687', justify="left").grid()
 
+    def localize_combobox_display(self, widget, internal_var):
+        """Translate visible combobox text while keeping upstream values internally."""
+        if not IS_SIMPLIFIED_CHINESE:
+            return
+
+        display_var = tk.StringVar()
+        state = {"syncing": False}
+
+        def sync_from_internal(*_):
+            if state["syncing"]:
+                return
+            state["syncing"] = True
+            display_var.set(localized_display_value(internal_var.get()))
+            state["syncing"] = False
+
+        def sync_to_internal(*_):
+            if state["syncing"]:
+                return
+            state["syncing"] = True
+            internal_var.set(upstream_display_value(display_var.get()))
+            state["syncing"] = False
+
+        current_values = tuple(widget.cget("values"))
+        if current_values:
+            widget.configure(values=tuple(localized_display_value(value) for value in current_values))
+
+        widget.configure(textvariable=display_var)
+        internal_trace = internal_var.trace_add("write", sync_from_internal)
+        display_trace = display_var.trace_add("write", sync_to_internal)
+        sync_from_internal()
+
+        # Tkinter variables and trace callbacks must stay alive with the widget.
+        widget._localized_display_var = display_var
+        widget._localized_trace_ids = (internal_trace, display_trace)
+
     #Ensemble Listbox Functions
     def ensemble_listbox_get_all_selected_models(self):return [self.ensemble_listbox_Option.get(i) for i in self.ensemble_listbox_Option.curselection()]
     def ensemble_listbox_select_from_indexs(self, indexes):return [self.ensemble_listbox_Option.selection_set(i) for i in indexes]
@@ -1740,6 +1781,7 @@ class MainWindow(TkinterDnD.Tk if is_dnd_compatible else tk.Tk):
         self.chosen_process_method_Label = self.main_window_LABEL_SET(self.options_Frame, CHOOSE_PROC_METHOD_MAIN_LABEL)
         self.chosen_process_method_Label.place(x=0, y=MAIN_ROW_Y[0], width=LEFT_ROW_WIDTH, height=LABEL_HEIGHT, relx=0, rely=2/self.COL1_ROWS, relwidth=1/3, relheight=1/self.COL1_ROWS)
         self.chosen_process_method_Option = ComboBoxMenu(self.options_Frame, textvariable=self.chosen_process_method_var, values=PROCESS_METHODS, command=lambda e: self.selection_action_process_method(self.chosen_process_method_var.get(), from_widget=True, is_from_conv_menu=True))
+        self.localize_combobox_display(self.chosen_process_method_Option, self.chosen_process_method_var)
         self.chosen_process_method_Option.place(x=0, y=MAIN_ROW_Y[1], width=LEFT_ROW_WIDTH, height=OPTION_HEIGHT, relx=0, rely=3/self.COL1_ROWS, relwidth=1/3, relheight=1/self.COL1_ROWS)
         #self.chosen_process_method_var.trace_add('write', lambda *args: self.update_main_widget_states())
         self.help_hints(self.chosen_process_method_Label, text=CHOSEN_PROCESS_METHOD_HELP)
@@ -1748,6 +1790,7 @@ class MainWindow(TkinterDnD.Tk if is_dnd_compatible else tk.Tk):
         self.save_current_settings_Label = self.main_window_LABEL_SET(self.options_Frame, SELECT_SAVED_SETTINGS_MAIN_LABEL)
         self.save_current_settings_Label_place = lambda:self.save_current_settings_Label.place(x=MAIN_ROW_2_X[0], y=LOW_MENU_Y[0], width=0, height=LABEL_HEIGHT, relx=2/3, rely=6/self.COL1_ROWS, relwidth=1/3, relheight=1/self.COL1_ROWS)
         self.save_current_settings_Option = ComboBoxMenu(self.options_Frame, textvariable=self.save_current_settings_var, command=lambda e:self.selection_action_saved_settings(self.save_current_settings_var.get()))
+        self.localize_combobox_display(self.save_current_settings_Option, self.save_current_settings_var)
         self.save_current_settings_Option_place = lambda:self.save_current_settings_Option.place(x=MAIN_ROW_2_X[1], y=LOW_MENU_Y[1], width=MAIN_ROW_WIDTH, height=OPTION_HEIGHT, relx=2/3, rely=7/self.COL1_ROWS, relwidth=1/3, relheight=1/self.COL1_ROWS)
         self.help_hints(self.save_current_settings_Label, text=SAVE_CURRENT_SETTINGS_HELP)
         
@@ -1757,12 +1800,13 @@ class MainWindow(TkinterDnD.Tk if is_dnd_compatible else tk.Tk):
         self.mdx_net_model_Label = self.main_window_LABEL_SET(self.options_Frame, CHOOSE_MDX_MODEL_MAIN_LABEL)
         self.mdx_net_model_Label_place = lambda:self.mdx_net_model_Label.place(x=0, y=LOW_MENU_Y[0], width=LEFT_ROW_WIDTH, height=LABEL_HEIGHT, relx=0, rely=6/self.COL1_ROWS, relwidth=1/3, relheight=1/self.COL1_ROWS)
         self.mdx_net_model_Option = ComboBoxMenu(self.options_Frame, textvariable=self.mdx_net_model_var, command=lambda event: self.selection_action(event, self.mdx_net_model_var, is_mdx_net=True))
+        self.localize_combobox_display(self.mdx_net_model_Option, self.mdx_net_model_var)
         self.mdx_net_model_Option_place = lambda:self.mdx_net_model_Option.place(x=0, y=LOW_MENU_Y[1], width=LEFT_ROW_WIDTH, height=OPTION_HEIGHT, relx=0, rely=7/self.COL1_ROWS, relwidth=1/3, relheight=1/self.COL1_ROWS)
         #self.mdx_net_model_var.trace_add('write', lambda *args: self.update_main_widget_states_mdx())
         self.help_hints(self.mdx_net_model_Label, text=CHOOSE_MODEL_HELP)
         
         # MDX-Overlap
-        self.overlap_mdx_Label = self.main_window_LABEL_SET(self.options_Frame, 'OVERLAP')
+        self.overlap_mdx_Label = self.main_window_LABEL_SET(self.options_Frame, ui_text('OVERLAP', '重叠率'))
         self.overlap_mdx_Label_place = lambda:self.overlap_mdx_Label.place(x=MAIN_ROW_2_X[0], y=MAIN_ROW_2_Y[0], width=0, height=LABEL_HEIGHT, relx=2/3, rely=2/self.COL1_ROWS, relwidth=1/3, relheight=1/self.COL2_ROWS)
         self.overlap_mdx_Option = ComboBoxEditableMenu(self.options_Frame, values=MDX_OVERLAP, width=MENU_COMBOBOX_WIDTH, textvariable=self.overlap_mdx_var, pattern=REG_OVERLAP, default=MDX_OVERLAP)
         self.overlap_mdx_Option_place = lambda:self.overlap_mdx_Option.place(x=MAIN_ROW_2_X[1], y=MAIN_ROW_2_Y[1], width=MAIN_ROW_WIDTH, height=OPTION_HEIGHT, relx=2/3, rely=3/self.COL1_ROWS, relwidth=1/3, relheight=1/self.COL2_ROWS)
@@ -1793,6 +1837,7 @@ class MainWindow(TkinterDnD.Tk if is_dnd_compatible else tk.Tk):
         self.vr_model_Label = self.main_window_LABEL_SET(self.options_Frame, SELECT_VR_MODEL_MAIN_LABEL)
         self.vr_model_Label_place = lambda:self.vr_model_Label.place(x=0, y=LOW_MENU_Y[0], width=LEFT_ROW_WIDTH, height=LABEL_HEIGHT, relx=0, rely=6/self.COL1_ROWS, relwidth=1/3, relheight=1/self.COL1_ROWS)
         self.vr_model_Option = ComboBoxMenu(self.options_Frame, textvariable=self.vr_model_var, command=lambda event: self.selection_action(event, self.vr_model_var))
+        self.localize_combobox_display(self.vr_model_Option, self.vr_model_var)
         self.vr_model_Option_place = lambda:self.vr_model_Option.place(x=0, y=LOW_MENU_Y[1], width=LEFT_ROW_WIDTH, height=OPTION_HEIGHT, relx=0, rely=7/self.COL1_ROWS, relwidth=1/3, relheight=1/self.COL1_ROWS)
         self.help_hints(self.vr_model_Label, text=CHOOSE_MODEL_HELP)
         
@@ -1816,6 +1861,7 @@ class MainWindow(TkinterDnD.Tk if is_dnd_compatible else tk.Tk):
         self.demucs_model_Label = self.main_window_LABEL_SET(self.options_Frame, CHOOSE_DEMUCS_MODEL_MAIN_LABEL)
         self.demucs_model_Label_place = lambda:self.demucs_model_Label.place(x=0, y=LOW_MENU_Y[0], width=LEFT_ROW_WIDTH, height=LABEL_HEIGHT, relx=0, rely=6/self.COL1_ROWS, relwidth=1/3, relheight=1/self.COL1_ROWS)
         self.demucs_model_Option = ComboBoxMenu(self.options_Frame, textvariable=self.demucs_model_var, command=lambda event: self.selection_action(event, self.demucs_model_var))
+        self.localize_combobox_display(self.demucs_model_Option, self.demucs_model_var)
         self.demucs_model_Option_place = lambda:self.demucs_model_Option.place(x=0, y=LOW_MENU_Y[1], width=LEFT_ROW_WIDTH, height=OPTION_HEIGHT, relx=0, rely=7/self.COL1_ROWS, relwidth=1/3, relheight=1/self.COL1_ROWS)
         self.help_hints(self.demucs_model_Label, text=CHOOSE_MODEL_HELP)
 
@@ -1852,6 +1898,7 @@ class MainWindow(TkinterDnD.Tk if is_dnd_compatible else tk.Tk):
         self.chosen_ensemble_Label = self.main_window_LABEL_SET(self.options_Frame, ENSEMBLE_OPTIONS_MAIN_LABEL)
         self.chosen_ensemble_Label_place = lambda:self.chosen_ensemble_Label.place(x=0, y=LOW_MENU_Y[0], width=LEFT_ROW_WIDTH, height=LABEL_HEIGHT, relx=0, rely=6/self.COL1_ROWS, relwidth=1/3, relheight=1/self.COL1_ROWS)
         self.chosen_ensemble_Option = ComboBoxMenu(self.options_Frame, textvariable=self.chosen_ensemble_var, command=lambda e:self.selection_action_chosen_ensemble(self.chosen_ensemble_var.get()))
+        self.localize_combobox_display(self.chosen_ensemble_Option, self.chosen_ensemble_var)
         self.chosen_ensemble_Option_place = lambda:self.chosen_ensemble_Option.place(x=0, y=LOW_MENU_Y[1], width=LEFT_ROW_WIDTH, height=OPTION_HEIGHT, relx=0, rely=7/self.COL1_ROWS, relwidth=1/3, relheight=1/self.COL1_ROWS)
         self.help_hints(self.chosen_ensemble_Label, text=CHOSEN_ENSEMBLE_HELP)
                         
@@ -2276,7 +2323,10 @@ class MainWindow(TkinterDnD.Tk if is_dnd_compatible else tk.Tk):
         """Deletes temp files"""
         
         DIRECTORIES = (BASE_PATH, VR_MODELS_DIR, MDX_MODELS_DIR, DEMUCS_MODELS_DIR, DEMUCS_NEWER_REPO_DIR)
-        EXTENSIONS = (('.aes', '.txt', '.tmp'))
+        # Text files are not temporary by definition.  The upstream cleanup
+        # previously removed requirements.txt and Demucs model manifests when
+        # running from source.
+        EXTENSIONS = ('.aes', '.tmp')
         
         try:
             if os.path.isfile(f"{current_patch}{application_extension}"):
@@ -5888,8 +5938,10 @@ class MainWindow(TkinterDnD.Tk if is_dnd_compatible else tk.Tk):
                 self.is_primary_stem_only_Demucs_Option.configure(state=tk.NORMAL)
                 self.is_secondary_stem_only_Demucs_Option.configure(state=tk.NORMAL)
                 
-        stem_text[0].set(f"{selection} Only")
-        stem_text[1].set(f"{secondary_stem(selection)} Only")
+        primary_display = localized_stem_name(selection)
+        secondary_display = localized_stem_name(secondary_stem(selection))
+        stem_text[0].set(ui_text(f"{selection} Only", f"仅保存{primary_display}"))
+        stem_text[1].set(ui_text(f"{secondary_stem(selection)} Only", f"仅保存{secondary_display}"))
      
     def update_ensemble_algorithm_menu(self, is_4_stem=False):
         options = ENSEMBLE_TYPE_4_STEM if is_4_stem else ENSEMBLE_TYPE

@@ -4,6 +4,8 @@
 
 UVR 可以使用 AI 模型从歌曲中分离人声、伴奏、鼓、贝斯和其他音轨。项目及核心模型由原作者团队开发，本 Fork 仅提供中文界面与中文使用说明，不修改音频分离算法。
 
+![Ultimate Vocal Remover 简体中文主界面](docs/screenshots/main-zh-cn.png)
+
 ## 第一版汉化范围
 
 - 主界面的按钮、标题和常用提示
@@ -29,7 +31,7 @@ UVR 可以使用 AI 模型从歌曲中分离人声、伴奏、鼓、贝斯和其
 
 ## 运行源码
 
-本项目沿用上游 UVR v5.6 的运行环境。Windows 用户建议使用 Python 3.9：
+本项目沿用上游 UVR v5.6 的运行环境，当前汉化版已在 Windows + Python 3.10 环境完成启动验证：
 
 ```powershell
 python -m pip install -r requirements.txt

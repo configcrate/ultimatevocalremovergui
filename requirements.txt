@@ -1,4 +1,5 @@
 altgraph==0.17.3
+setuptools<81
 audioread==3.0.0
 certifi==2022.12.07
 cffi==1.15.1
@@ -31,12 +32,11 @@ wget==3.2
 samplerate==0.1.0
 screeninfo==0.8.1
 diffq
-playsound
+playsound==1.2.2
 onnx
 onnxruntime
 onnxruntime-gpu
 onnx2pytorch
 SoundFile==0.11.0; sys_platform != 'darwin'
 PySoundFile==0.9.0.post1; sys_platform == 'darwin'
-Dora==0.0.3
 numpy==1.23.5

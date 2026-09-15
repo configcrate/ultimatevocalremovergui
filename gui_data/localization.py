@@ -128,6 +128,8 @@ ZH_CN_TEXT = {
     "VERIFY_INPUTS_TEXT": "检查输入文件",
     "AUDIO_INPUT_TOTAL_TEXT": "音频文件总数",
     "PROCESS_STARTING_TEXT": "正在开始处理…… ",
+    "SECONDS_TEXT": "秒",
+    "SAMPLE_MODE_CHECKBOX": lambda value: f"试听模式（{value} 秒）",
 
     # Main tooltips
     "STOP_HELP": "停止当前任务。\n• 停止前会弹出确认窗口。",
@@ -157,6 +159,10 @@ ZH_CN_TEXT = {
     "DOWNLOAD_STOPPED": "下载已停止",
     "DOWNLOAD_COMPLETE": "下载完成",
     "DOWNLOAD_UPDATE_COMPLETE": "更新下载完成",
+    "NEW_UPDATE_FOUND_TEXT": lambda version: (
+        f"\n\n发现新版本：{version}"
+        "\n\n请在“设置”菜单中点击更新按钮下载并安装！"
+    ),
 
     # Common dialogs (title, message)
     "INVALID_INPUT": (
@@ -206,6 +212,53 @@ ZH_CN_TEXT = {
 }
 
 
+ZH_CN_STEMS = {
+    "Primary Stem": "主要音轨",
+    "Secondary Stem": "次要音轨",
+    "Vocals": "人声",
+    "Instrumental": "伴奏",
+    "Other": "其他",
+    "Drums": "鼓",
+    "Bass": "贝斯",
+    "Guitar": "吉他",
+    "Piano": "钢琴",
+    "Noise": "噪声",
+    "No Noise": "无噪声",
+}
+
+
+ZH_CN_DISPLAY_VALUES = {
+    "Choose Model": "选择模型",
+    "Choose Option": "选择选项",
+    "Select Saved Setting": "选择已保存设置",
+    "VR Architecture": "VR 人声分离",
+    "Ensemble Mode": "组合分离",
+    "Audio Tools": "音频工具",
+}
+
+
+def localized_display_value(value: str) -> str:
+    """Return a translated combobox value without changing stored settings."""
+    if not is_simplified_chinese():
+        return value
+    return ZH_CN_DISPLAY_VALUES.get(value, value)
+
+
+def upstream_display_value(value: str) -> str:
+    """Convert a translated combobox value back to the upstream value."""
+    if not is_simplified_chinese():
+        return value
+    reverse_values = {translated: upstream for upstream, translated in ZH_CN_DISPLAY_VALUES.items()}
+    return reverse_values.get(value, value)
+
+
+def localized_stem_name(stem: str) -> str:
+    """Translate a stem for display while preserving its internal value."""
+    if not is_simplified_chinese():
+        return stem
+    return ZH_CN_STEMS.get(stem, stem)
+
+
 def apply_localization(namespace: MutableMapping[str, object]) -> bool:
     """Apply display translations to UVR's imported constant namespace."""
     if not is_simplified_chinese():
@@ -220,4 +273,3 @@ def apply_localization(namespace: MutableMapping[str, object]) -> bool:
     namespace["MAIN_FONT_NAME"] = CHINESE_FONT
     namespace["SEC_FONT_NAME"] = CHINESE_FONT
     return True
-
